@@ -1,0 +1,15 @@
+{
+  "name": "itheum-identity-sdk",
+  "version": "1.0.0",
+  "description": "SDK for Itheums Identity and Claims Smart Contracts",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc"
+  },
+  "author": "Peter Holzer <message@peterholzer.at>",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.27.2",
+    "ethers": "^5.7.1"
+  }
+}
