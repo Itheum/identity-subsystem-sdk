@@ -37,7 +37,7 @@ export class IdentityFactory {
 
     const getDeployedIdentityEntitiesForAddressQuery = {
       query: `{
-        deployedIdentityEntities(where: {identityOwner: "${signerAddress}"}) {
+        deployedIdentityEntities(where: {owner: "${signerAddress}"}) {
           identityContract
           unixTimestamp
         }
@@ -49,24 +49,24 @@ export class IdentityFactory {
       (ele: { identityContract: string }) => ele.identityContract
     );
 
-    const getAdditionalOwnerActionEntitiesForAddressQuery = {
+    const getOwnerActionEntitiesForAddressQuery = {
       query: `{
-        additionalOwnerActionEntities(where: {additionalOwner: "${signerAddress}"}) {
+        ownerActionEntities(where: {owner: "${signerAddress}"}) {
           identityContract
           action
           unixTimestamp
         }
       }`,
     }
-    const additionalOwnerResponse = (await axios.post(SUB_GRAPH_API_URL, getAdditionalOwnerActionEntitiesForAddressQuery)).data;
+    const ownerResponse = (await axios.post(SUB_GRAPH_API_URL, getOwnerActionEntitiesForAddressQuery)).data;
 
-    const additionalOwnerActionEntities = additionalOwnerResponse.data.additionalOwnerActionEntities;
+    const ownerActionEntities = ownerResponse.data.ownerActionEntities;
 
-    additionalOwnerActionEntities.sort(
+    ownerActionEntities.sort(
       (a: { unixTimestamp: number }, b: { unixTimestamp: number }) => a.unixTimestamp < b.unixTimestamp ? -1 : 1
     );
 
-    for (const entity of additionalOwnerActionEntities) {
+    for (const entity of ownerActionEntities) {
       if (entity.action === 'added' && !identityAddresses.includes(entity.identityContract)) {
         identityAddresses.push(entity.identityContract);
 
@@ -88,15 +88,15 @@ export class IdentityFactory {
     const identityDeployedEventsForSignerAddress = identityDeployedEvents.filter(event => event.args && event.args[1] === signerAddress);
     let identityAddresses = identityDeployedEventsForSignerAddress.length > 0 ? identityDeployedEventsForSignerAddress.map(event => event.args![0]) : [];
 
-    const identityDeployedEventsForAdditionalOwner = await this.contract.queryFilter('AdditionalOwnerAction', 0);
+    const identityDeployedEventsForOwner = await this.contract.queryFilter('OwnerAction', 0);
 
-    const identityDeployedEventsForAdditionalOwnerForSignerAddress = identityDeployedEventsForAdditionalOwner.filter(event => event.args && event.args[2] === signerAddress);
-    const additionalOwnerAddedEvent = identityDeployedEventsForAdditionalOwnerForSignerAddress.filter(event => event.args![3] === "added");
-    const additionalOwnerremovedEvents = identityDeployedEventsForAdditionalOwnerForSignerAddress.filter(event => event.args![3] === "removed");
+    const identityDeployedEventsForOwnerForSignerAddress = identityDeployedEventsForOwner.filter(event => event.args && event.args[1] === signerAddress);
+    const ownerAddedEvent = identityDeployedEventsForOwnerForSignerAddress.filter(event => event.args![3] === "added");
+    const ownerremovedEvents = identityDeployedEventsForOwnerForSignerAddress.filter(event => event.args![3] === "removed");
 
-    identityAddresses.push(...additionalOwnerAddedEvent.map(event => event.args![0]));
+    identityAddresses.push(...ownerAddedEvent.map(event => event.args![0]));
 
-    additionalOwnerremovedEvents.map(event => event.args![0]).forEach(ele => {
+    ownerremovedEvents.map(event => event.args![0]).forEach(ele => {
       const index = identityAddresses.findIndex(eleToFind => eleToFind === ele);
       if (index >= 0) identityAddresses.splice(index, 1);
     });

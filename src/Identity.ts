@@ -1,5 +1,5 @@
 import { ethers } from "ethers";
-import {Claim} from "./Claim";
+import { Claim } from "./Claim";
 
 interface CustomWindow extends Window {
   ethereum: any;
@@ -23,38 +23,20 @@ export class Identity {
     await addClaimTx.wait();
   }
 
-  public async getClaims(): Promise<string[]> {
-    const claims: string[] = [];
+  public async removeClaim(claimIdentifier: string): Promise<void> {
+    const signer = await Identity.getSigner();
 
-    const claimAddedEvents = await this.contract.queryFilter('ClaimAdded', 0);
-    const claimRemovedEvents = await this.contract.queryFilter('ClaimRemoved', 0);
+    const addClaimTx = await this.contract.connect(signer).removeClaim(claimIdentifier);
 
-    claims.push(...claimAddedEvents.map(ele => ele.args![0]));
-
-    claimRemovedEvents
-      .map(ele => ele.args![0])
-      .forEach(ele => {
-        const index = claims.findIndex(eleToFind => eleToFind === ele);
-        if (index >= 0) claims.splice(index, 1);
-      });
-    return claims;
+    await addClaimTx.wait();
   }
 
-  public async getOwners(): Promise<string[]> {
-    const owners = [await this.contract.owner()];
+  public getClaims(): Promise<string[]> {
+    return this.contract.getClaimIdentifier();
+  }
 
-    const additionalOwnerAddedEvents = await this.contract.queryFilter('AdditionalOwnerAdded', 0);
-    const additionalOwnerRemovedEvents = await this.contract.queryFilter('AdditionalOwnerRemoved', 0);
-
-    owners.push(...additionalOwnerAddedEvents.map(ele => ele.args![1]));
-
-    additionalOwnerRemovedEvents
-      .map(ele => ele.args![1])
-      .forEach(ele => {
-        const index = owners.findIndex(eleToFind => eleToFind === ele);
-        if (index >= 0) owners.splice(index, 1);
-      });
-    return owners;
+  public getOwners(): Promise<string[]> {
+    return this.contract.getOwners();
   }
 
   public async getOwnerRemovalConfirmations(): Promise<{ address: string, count: number }[]> {
@@ -63,34 +45,34 @@ export class Identity {
     const owners = await this.getOwners();
 
     for (const owner of owners) {
-      const count = await this.contract.removeAdditionalOwnerConfirmationCount(owner);
+      const count = await this.contract.removeOwnerConfirmationCount(owner);
       confirmations.push(count);
     }
     return confirmations;
   }
 
-  public async addAdditionalOwner(address: string): Promise<void> {
+  public async addOwner(address: string): Promise<void> {
     const signer = await Identity.getSigner();
 
-    const addAdditionalOwnerTx = await this.contract.connect(signer).addAdditionalOwner(address);
+    const addOwnerTx = await this.contract.connect(signer).addOwner(address);
 
-    await addAdditionalOwnerTx.wait();
+    await addOwnerTx.wait();
   }
 
-  public async proposeAdditionalOwnerRemoval(address: string): Promise<void> {
+  public async proposeOwnerRemoval(address: string): Promise<void> {
     const signer = await Identity.getSigner();
 
-    const proposeAdditionalOwnerRemovalTx = await this.contract.connect(signer).proposeAdditionalOwnerRemoval(address);
+    const proposeOwnerRemovalTx = await this.contract.connect(signer).proposeOwnerRemoval(address);
 
-    await proposeAdditionalOwnerRemovalTx.wait();
+    await proposeOwnerRemovalTx.wait();
   }
 
-  public async removeAdditionalOwner(address: string): Promise<void> {
+  public async removeOwner(address: string): Promise<void> {
     const signer = await Identity.getSigner();
 
-    const removeAdditionalOwnerTx = await this.contract.connect(signer).removeAdditionalOwner(address);
+    const removeOwnerTx = await this.contract.connect(signer).removeOwner(address);
 
-    await removeAdditionalOwnerTx.wait();
+    await removeOwnerTx.wait();
   }
 
   public async execute(functionSignature: string, targetAddress: string, amountInEtherString: string, gasLimit: number): Promise<void> {
