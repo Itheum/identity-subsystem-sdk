@@ -35,7 +35,7 @@ export class IdentityFactory {
     const signer = await IdentityFactory.getSigner();
     const signerAddress = await signer.getAddress();
 
-    const getDeployedIdentityEntitiesForAddressQuery = {
+    const getIdentityDeployedEntitiesForAddressQuery = {
       query: `{
         identityDeployedEntities(where: {owner: "${signerAddress}"}) {
           contract
@@ -43,9 +43,9 @@ export class IdentityFactory {
         }
       }`,
     };
-    const deployedIdentityResponse = (await axios.post(SUB_GRAPH_API_URL, getDeployedIdentityEntitiesForAddressQuery)).data;
+    const identityDeployedResponse = (await axios.post(SUB_GRAPH_API_URL, getIdentityDeployedEntitiesForAddressQuery)).data;
 
-    const identityAddresses: string[] = deployedIdentityResponse.data.deployedIdentityEntities.map(
+    const identityAddresses: string[] = identityDeployedResponse.data.identityDeployedEntities.map(
       (ele: { contract: string }) => ele.contract
     );
 
