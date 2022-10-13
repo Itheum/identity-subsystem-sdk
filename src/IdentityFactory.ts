@@ -37,8 +37,8 @@ export class IdentityFactory {
 
     const getDeployedIdentityEntitiesForAddressQuery = {
       query: `{
-        deployedIdentityEntities(where: {owner: "${signerAddress}"}) {
-          identityContract
+        identityDeployedEntities(where: {owner: "${signerAddress}"}) {
+          contract
           unixTimestamp
         }
       }`,
@@ -46,14 +46,14 @@ export class IdentityFactory {
     const deployedIdentityResponse = (await axios.post(SUB_GRAPH_API_URL, getDeployedIdentityEntitiesForAddressQuery)).data;
 
     const identityAddresses: string[] = deployedIdentityResponse.data.deployedIdentityEntities.map(
-      (ele: { identityContract: string }) => ele.identityContract
+      (ele: { contract: string }) => ele.contract
     );
 
     const getOwnerActionEntitiesForAddressQuery = {
       query: `{
         ownerActionEntities(where: {owner: "${signerAddress}"}) {
-          identityContract
-          action
+          contract
+          actionType
           unixTimestamp
         }
       }`,
@@ -67,11 +67,11 @@ export class IdentityFactory {
     );
 
     for (const entity of ownerActionEntities) {
-      if (entity.action === 'added' && !identityAddresses.includes(entity.identityContract)) {
-        identityAddresses.push(entity.identityContract);
+      if (entity.actionType === 'added' && !identityAddresses.includes(entity.contract)) {
+        identityAddresses.push(entity.contract);
 
-      } else if (entity.action === 'removed' && identityAddresses.includes(entity.identityContract)) {
-        const index = identityAddresses.findIndex(eleToFind => eleToFind === entity.identityContract);
+      } else if (entity.actionType === 'removed' && identityAddresses.includes(entity.contract)) {
+        const index = identityAddresses.findIndex(eleToFind => eleToFind === entity.contract);
         if (index >= 0) identityAddresses.splice(index, 1);
       }
     }
