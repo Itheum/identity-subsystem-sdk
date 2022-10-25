@@ -35,6 +35,10 @@ export class Identity {
     return this.contract.getClaimIdentifier();
   }
 
+  public getClaimByIdentifier(claimIdentifier: string): Promise<Claim> {
+    return this.contract.claims(claimIdentifier);
+  }
+
   public getOwners(): Promise<string[]> {
     return this.contract.getOwners();
   }
