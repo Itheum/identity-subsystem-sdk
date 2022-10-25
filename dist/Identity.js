@@ -32,6 +32,9 @@ class Identity {
     getClaims() {
         return this.contract.getClaimIdentifier();
     }
+    getClaimByIdentifier(claimIdentifier) {
+        return this.contract.claims(claimIdentifier);
+    }
     getOwners() {
         return this.contract.getOwners();
     }
