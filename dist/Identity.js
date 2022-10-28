@@ -35,40 +35,8 @@ class Identity {
     getClaimByIdentifier(claimIdentifier) {
         return this.contract.claims(claimIdentifier);
     }
-    getOwners() {
-        return this.contract.getOwners();
-    }
-    getOwnerRemovalConfirmations() {
-        return __awaiter(this, void 0, void 0, function* () {
-            const confirmations = [];
-            const owners = yield this.getOwners();
-            for (const owner of owners) {
-                const count = yield this.contract.removeOwnerConfirmationCount(owner);
-                confirmations.push(count);
-            }
-            return confirmations;
-        });
-    }
-    addOwner(address) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const signer = yield Identity.getSigner();
-            const addOwnerTx = yield this.contract.connect(signer).addOwner(address);
-            yield addOwnerTx.wait();
-        });
-    }
-    proposeOwnerRemoval(address) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const signer = yield Identity.getSigner();
-            const proposeOwnerRemovalTx = yield this.contract.connect(signer).proposeOwnerRemoval(address);
-            yield proposeOwnerRemovalTx.wait();
-        });
-    }
-    removeOwner(address) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const signer = yield Identity.getSigner();
-            const removeOwnerTx = yield this.contract.connect(signer).removeOwner(address);
-            yield removeOwnerTx.wait();
-        });
+    getOwner() {
+        return this.contract.owner();
     }
     execute(functionSignature, targetAddress, amountInEtherString, gasLimit) {
         return __awaiter(this, void 0, void 0, function* () {

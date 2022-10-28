@@ -49,33 +49,6 @@ export class IdentityFactory {
       (ele: { contract: string }) => ele.contract
     );
 
-    const getOwnerActionEntitiesForAddressQuery = {
-      query: `{
-        ownerActionEntities(where: {owner: "${signerAddress}"}) {
-          contract
-          actionType
-          unixTimestamp
-        }
-      }`,
-    }
-    const ownerResponse = (await axios.post(SUB_GRAPH_API_URL, getOwnerActionEntitiesForAddressQuery)).data;
-
-    const ownerActionEntities = ownerResponse.data.ownerActionEntities;
-
-    ownerActionEntities.sort(
-      (a: { unixTimestamp: number }, b: { unixTimestamp: number }) => a.unixTimestamp < b.unixTimestamp ? -1 : 1
-    );
-
-    for (const entity of ownerActionEntities) {
-      if (entity.actionType === 'added' && !identityAddresses.includes(entity.contract)) {
-        identityAddresses.push(entity.contract);
-
-      } else if (entity.actionType === 'removed' && identityAddresses.includes(entity.contract)) {
-        const index = identityAddresses.findIndex(eleToFind => eleToFind === entity.contract);
-        if (index >= 0) identityAddresses.splice(index, 1);
-      }
-    }
-
     return identityAddresses.map(address => new Identity(new ethers.Contract(address, identityContractAbi, signer)));
   }
 
@@ -87,19 +60,6 @@ export class IdentityFactory {
 
     const identityDeployedEventsForSignerAddress = identityDeployedEvents.filter(event => event.args && event.args[1] === signerAddress);
     let identityAddresses = identityDeployedEventsForSignerAddress.length > 0 ? identityDeployedEventsForSignerAddress.map(event => event.args![0]) : [];
-
-    const identityDeployedEventsForOwner = await this.contract.queryFilter('OwnerAction', 0);
-
-    const identityDeployedEventsForOwnerForSignerAddress = identityDeployedEventsForOwner.filter(event => event.args && event.args[1] === signerAddress);
-    const ownerAddedEvent = identityDeployedEventsForOwnerForSignerAddress.filter(event => event.args![3] === "added");
-    const ownerremovedEvents = identityDeployedEventsForOwnerForSignerAddress.filter(event => event.args![3] === "removed");
-
-    identityAddresses.push(...ownerAddedEvent.map(event => event.args![0]));
-
-    ownerremovedEvents.map(event => event.args![0]).forEach(ele => {
-      const index = identityAddresses.findIndex(eleToFind => eleToFind === ele);
-      if (index >= 0) identityAddresses.splice(index, 1);
-    });
 
     return identityAddresses.map(address => new Identity(new ethers.Contract(address, identityContractAbi, signer)));
   }

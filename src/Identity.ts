@@ -39,44 +39,8 @@ export class Identity {
     return this.contract.claims(claimIdentifier);
   }
 
-  public getOwners(): Promise<string[]> {
-    return this.contract.getOwners();
-  }
-
-  public async getOwnerRemovalConfirmations(): Promise<{ address: string, count: number }[]> {
-    const confirmations = [];
-
-    const owners = await this.getOwners();
-
-    for (const owner of owners) {
-      const count = await this.contract.removeOwnerConfirmationCount(owner);
-      confirmations.push(count);
-    }
-    return confirmations;
-  }
-
-  public async addOwner(address: string): Promise<void> {
-    const signer = await Identity.getSigner();
-
-    const addOwnerTx = await this.contract.connect(signer).addOwner(address);
-
-    await addOwnerTx.wait();
-  }
-
-  public async proposeOwnerRemoval(address: string): Promise<void> {
-    const signer = await Identity.getSigner();
-
-    const proposeOwnerRemovalTx = await this.contract.connect(signer).proposeOwnerRemoval(address);
-
-    await proposeOwnerRemovalTx.wait();
-  }
-
-  public async removeOwner(address: string): Promise<void> {
-    const signer = await Identity.getSigner();
-
-    const removeOwnerTx = await this.contract.connect(signer).removeOwner(address);
-
-    await removeOwnerTx.wait();
+  public getOwner(): Promise<string[]> {
+    return this.contract.owner();
   }
 
   public async execute(functionSignature: string, targetAddress: string, amountInEtherString: string, gasLimit: number): Promise<void> {
