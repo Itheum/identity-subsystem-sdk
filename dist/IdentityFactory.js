@@ -34,7 +34,6 @@ class IdentityFactory {
     }
     static init(address) {
         return __awaiter(this, void 0, void 0, function* () {
-            yield this.provider.send("eth_requestAccounts", []);
             const signer = yield this.getSigner();
             if (address) {
                 return new IdentityFactory(new ethers_1.ethers.Contract(address, constants_1.IdentityFactoryContractAbi, signer));

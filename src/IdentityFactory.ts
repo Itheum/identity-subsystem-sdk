@@ -32,8 +32,6 @@ export class IdentityFactory {
   }
 
   public static async init(address?: string): Promise<IdentityFactory> {
-    await this.provider.send("eth_requestAccounts", []);
-
     const signer = await this.getSigner();
 
     if (address) {
