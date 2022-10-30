@@ -2,15 +2,25 @@ import { identityContractAbi, IdentityFactoryContractAbi, IdentityFactoryContrac
 import { Identity } from "./Identity";
 import { ethers } from 'ethers';
 import { default as axios } from 'axios';
-import { useSafeAppsSDK } from '@gnosis.pm/safe-apps-react-sdk';
 import { SafeAppProvider } from '@gnosis.pm/safe-apps-provider';
+import SafeAppsSDK, {SafeInfo} from "@gnosis.pm/safe-apps-sdk";
 
 interface CustomWindow extends Window {
   ethereum: any;
 }
 declare var window: CustomWindow;
 
-const { sdk, safe } = useSafeAppsSDK();
+const opts = {
+  allowedDomains: [/gnosis-safe.io/],
+  debug: false
+};
+
+let sdk: SafeAppsSDK, safe: SafeInfo;
+
+(async () => {
+  sdk = new SafeAppsSDK(opts);
+  safe = await sdk.safe.getInfo();
+})();
 
 export class IdentityFactory {
   private static provider = new ethers.providers.Web3Provider(new SafeAppProvider(safe, sdk));

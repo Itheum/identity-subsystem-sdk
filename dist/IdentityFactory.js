@@ -17,9 +17,17 @@ const constants_1 = require("./constants");
 const Identity_1 = require("./Identity");
 const ethers_1 = require("ethers");
 const axios_1 = __importDefault(require("axios"));
-const safe_apps_react_sdk_1 = require("@gnosis.pm/safe-apps-react-sdk");
 const safe_apps_provider_1 = require("@gnosis.pm/safe-apps-provider");
-const { sdk, safe } = (0, safe_apps_react_sdk_1.useSafeAppsSDK)();
+const safe_apps_sdk_1 = __importDefault(require("@gnosis.pm/safe-apps-sdk"));
+const opts = {
+    allowedDomains: [/gnosis-safe.io/],
+    debug: false
+};
+let sdk, safe;
+(() => __awaiter(void 0, void 0, void 0, function* () {
+    sdk = new safe_apps_sdk_1.default(opts);
+    safe = yield sdk.safe.getInfo();
+}))();
 class IdentityFactory {
     constructor(contract) {
         this.contract = contract;

@@ -1,6 +1,6 @@
 {
   "name": "poc-itheum-identity-sdk",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "description": "SDK for Itheums Identity and Claims Smart Contracts",
   "main": "dist/index.js",
   "scripts": {
@@ -10,7 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "@gnosis.pm/safe-apps-provider": "^0.14.0",
-    "@gnosis.pm/safe-apps-react-sdk": "^4.6.2",
+    "@gnosis.pm/safe-apps-sdk": "^7.8.0",
     "axios": "^0.27.2",
     "ethers": "^5.7.1"
   }

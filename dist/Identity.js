@@ -8,12 +8,23 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Identity = void 0;
 const ethers_1 = require("ethers");
 const safe_apps_provider_1 = require("@gnosis.pm/safe-apps-provider");
-const safe_apps_react_sdk_1 = require("@gnosis.pm/safe-apps-react-sdk");
-const { sdk, safe } = (0, safe_apps_react_sdk_1.useSafeAppsSDK)();
+const safe_apps_sdk_1 = __importDefault(require("@gnosis.pm/safe-apps-sdk"));
+const opts = {
+    allowedDomains: [/gnosis-safe.io/],
+    debug: false
+};
+let sdk, safe;
+(() => __awaiter(void 0, void 0, void 0, function* () {
+    sdk = new safe_apps_sdk_1.default(opts);
+    safe = yield sdk.safe.getInfo();
+}))();
 class Identity {
     constructor(contract) {
         this.contract = contract;
