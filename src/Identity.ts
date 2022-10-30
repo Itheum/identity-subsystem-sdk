@@ -1,13 +1,17 @@
 import { ethers } from "ethers";
 import { Claim } from "./Claim";
+import { SafeAppProvider } from "@gnosis.pm/safe-apps-provider";
+import { useSafeAppsSDK } from "@gnosis.pm/safe-apps-react-sdk";
 
 interface CustomWindow extends Window {
   ethereum: any;
 }
 declare var window: CustomWindow;
 
+const { sdk, safe } = useSafeAppsSDK();
+
 export class Identity {
-  private static provider = new ethers.providers.Web3Provider(window.ethereum);
+  private static provider = new ethers.providers.Web3Provider(new SafeAppProvider(safe, sdk));
 
   private contract: ethers.Contract;
 

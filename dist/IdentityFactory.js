@@ -17,6 +17,9 @@ const constants_1 = require("./constants");
 const Identity_1 = require("./Identity");
 const ethers_1 = require("ethers");
 const axios_1 = __importDefault(require("axios"));
+const safe_apps_react_sdk_1 = require("@gnosis.pm/safe-apps-react-sdk");
+const safe_apps_provider_1 = require("@gnosis.pm/safe-apps-provider");
+const { sdk, safe } = (0, safe_apps_react_sdk_1.useSafeAppsSDK)();
 class IdentityFactory {
     constructor(contract) {
         this.contract = contract;
@@ -84,4 +87,4 @@ class IdentityFactory {
     }
 }
 exports.IdentityFactory = IdentityFactory;
-IdentityFactory.provider = new ethers_1.ethers.providers.Web3Provider(window.ethereum);
+IdentityFactory.provider = new ethers_1.ethers.providers.Web3Provider(new safe_apps_provider_1.SafeAppProvider(safe, sdk));

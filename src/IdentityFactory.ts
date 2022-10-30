@@ -2,15 +2,18 @@ import { identityContractAbi, IdentityFactoryContractAbi, IdentityFactoryContrac
 import { Identity } from "./Identity";
 import { ethers } from 'ethers';
 import { default as axios } from 'axios';
+import { useSafeAppsSDK } from '@gnosis.pm/safe-apps-react-sdk';
+import { SafeAppProvider } from '@gnosis.pm/safe-apps-provider';
 
 interface CustomWindow extends Window {
   ethereum: any;
 }
 declare var window: CustomWindow;
 
-export class IdentityFactory {
+const { sdk, safe } = useSafeAppsSDK();
 
-  private static provider = new ethers.providers.Web3Provider(window.ethereum);
+export class IdentityFactory {
+  private static provider = new ethers.providers.Web3Provider(new SafeAppProvider(safe, sdk));
 
   private contract: ethers.Contract;
 

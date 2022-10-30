@@ -11,6 +11,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Identity = void 0;
 const ethers_1 = require("ethers");
+const safe_apps_provider_1 = require("@gnosis.pm/safe-apps-provider");
+const safe_apps_react_sdk_1 = require("@gnosis.pm/safe-apps-react-sdk");
+const { sdk, safe } = (0, safe_apps_react_sdk_1.useSafeAppsSDK)();
 class Identity {
     constructor(contract) {
         this.contract = contract;
@@ -63,4 +66,4 @@ class Identity {
     }
 }
 exports.Identity = Identity;
-Identity.provider = new ethers_1.ethers.providers.Web3Provider(window.ethereum);
+Identity.provider = new ethers_1.ethers.providers.Web3Provider(new safe_apps_provider_1.SafeAppProvider(safe, sdk));
