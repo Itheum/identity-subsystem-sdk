@@ -72,7 +72,6 @@ export class Identity {
   }
 
   private static async getSigner(): Promise<ethers.providers.JsonRpcSigner> {
-    await this.provider.send("eth_requestAccounts", []);
     return this.provider.getSigner();
   }
 

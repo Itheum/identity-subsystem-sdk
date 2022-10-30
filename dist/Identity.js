@@ -65,7 +65,6 @@ class Identity {
     }
     static getSigner() {
         return __awaiter(this, void 0, void 0, function* () {
-            yield this.provider.send("eth_requestAccounts", []);
             return this.provider.getSigner();
         });
     }
