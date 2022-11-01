@@ -3,7 +3,7 @@ import { Identity } from "./Identity";
 import { ethers } from 'ethers';
 import { default as axios } from 'axios';
 import { SafeAppProvider } from '@gnosis.pm/safe-apps-provider';
-import SafeAppsSDK, {SafeInfo} from "@gnosis.pm/safe-apps-sdk";
+import SafeAppsSDK from "@gnosis.pm/safe-apps-sdk";
 
 interface CustomWindow extends Window {
   ethereum: any;
