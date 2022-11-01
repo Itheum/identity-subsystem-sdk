@@ -20,9 +20,6 @@ export class IdentityFactory {
     const sdk = new SafeAppsSDK(opts);
     const safe = await sdk.safe.getInfo();
 
-    console.log('sdk', sdk);
-    console.log('safe', safe);
-
     return new ethers.providers.Web3Provider(new SafeAppProvider(safe, sdk));
   };
 
@@ -33,8 +30,6 @@ export class IdentityFactory {
   }
 
   public static async init(address?: string): Promise<IdentityFactory> {
-    console.log('IdentityFactory', 'init');
-
     const signer = await this.getSigner();
 
     if (address) {
@@ -46,8 +41,6 @@ export class IdentityFactory {
   }
 
   public async getIdentitiesByTheGraph(): Promise<Identity[]> {
-    console.log('IdentityFactory', 'getIdentitiesByTheGraph');
-
     const signer = await IdentityFactory.getSigner();
     const signerAddress = await signer.getAddress();
 
@@ -69,8 +62,6 @@ export class IdentityFactory {
   }
 
   public async getIdentities(): Promise<Identity[]> {
-    console.log('IdentityFactory', 'getIdentities');
-
     let identityDeployedEvents = await this.contract.queryFilter('IdentityDeployed', 0);
 
     const signer = await IdentityFactory.getSigner();
@@ -83,8 +74,6 @@ export class IdentityFactory {
   }
 
   public async deployIdentity(): Promise<Identity> {
-    console.log('IdentityFactory', 'deployIdentity');
-
     const signer = await IdentityFactory.getSigner();
 
     const deployIdentityTx = await this.contract.connect(signer).deployIdentity();
@@ -96,7 +85,11 @@ export class IdentityFactory {
   }
 
   private static async getSigner(): Promise<ethers.providers.JsonRpcSigner> {
-    return (await this.provider()).getSigner();
+    const signer = (await this.provider()).getSigner()
+
+    console.log('address', signer.getAddress());
+
+    return signer;
   }
 
   private static async getSignerAddress(): Promise<string> {

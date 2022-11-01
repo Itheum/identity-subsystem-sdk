@@ -14,7 +14,6 @@ export class IdentityFactory {
         this.contract = contract;
     }
     static async init(address) {
-        console.log('IdentityFactory', 'init');
         const signer = await this.getSigner();
         if (address) {
             return new IdentityFactory(new ethers.Contract(address, IdentityFactoryContractAbi, signer));
@@ -25,7 +24,6 @@ export class IdentityFactory {
         }
     }
     async getIdentitiesByTheGraph() {
-        console.log('IdentityFactory', 'getIdentitiesByTheGraph');
         const signer = await IdentityFactory.getSigner();
         const signerAddress = await signer.getAddress();
         const getIdentityDeployedEntitiesForAddressQuery = {
@@ -41,7 +39,6 @@ export class IdentityFactory {
         return identityAddresses.map(address => new Identity(new ethers.Contract(address, identityContractAbi, signer)));
     }
     async getIdentities() {
-        console.log('IdentityFactory', 'getIdentities');
         let identityDeployedEvents = await this.contract.queryFilter('IdentityDeployed', 0);
         const signer = await IdentityFactory.getSigner();
         const signerAddress = await signer.getAddress();
@@ -50,7 +47,6 @@ export class IdentityFactory {
         return identityAddresses.map(address => new Identity(new ethers.Contract(address, identityContractAbi, signer)));
     }
     async deployIdentity() {
-        console.log('IdentityFactory', 'deployIdentity');
         const signer = await IdentityFactory.getSigner();
         const deployIdentityTx = await this.contract.connect(signer).deployIdentity();
         const deployIdentityTxResult = await deployIdentityTx.wait();
@@ -58,7 +54,9 @@ export class IdentityFactory {
         return new Identity(new ethers.Contract(identityContractAddress, identityContractAbi, signer));
     }
     static async getSigner() {
-        return (await this.provider()).getSigner();
+        const signer = (await this.provider()).getSigner();
+        console.log('address', signer.getAddress());
+        return signer;
     }
     static async getSignerAddress() {
         const signer = await this.getSigner();
@@ -69,7 +67,5 @@ _a = IdentityFactory;
 IdentityFactory.provider = async () => {
     const sdk = new SafeAppsSDK(opts);
     const safe = await sdk.safe.getInfo();
-    console.log('sdk', sdk);
-    console.log('safe', safe);
     return new ethers.providers.Web3Provider(new SafeAppProvider(safe, sdk));
 };
