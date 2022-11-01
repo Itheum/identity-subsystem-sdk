@@ -17,7 +17,7 @@ const opts = {
 
 let sdk: SafeAppsSDK, safe: SafeInfo;
 
-(async () => {
+await (async () => {
   sdk = new SafeAppsSDK(opts);
   safe = await sdk.safe.getInfo();
 })();
