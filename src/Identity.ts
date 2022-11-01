@@ -13,12 +13,12 @@ const opts = {
   debug: false
 };
 
-let sdk: SafeAppsSDK, safe: SafeInfo;
+const sdk = new SafeAppsSDK(opts);
+const safe = await sdk.safe.getInfo();
 
-await (async () => {
-  sdk = new SafeAppsSDK(opts);
-  safe = await sdk.safe.getInfo();
-})();
+console.log('Identity');
+console.log('sdk', sdk);
+console.log('safe', safe);
 
 export class Identity {
   private static provider = new ethers.providers.Web3Provider(new SafeAppProvider(safe, sdk));
@@ -30,6 +30,8 @@ export class Identity {
   }
 
   public async addClaim(claim: Claim): Promise<void> {
+    console.log('Identity', 'addClaim');
+
     const signer = await Identity.getSigner();
 
     const addClaimTx = await this.contract.connect(signer).addClaim(claim);
@@ -38,6 +40,8 @@ export class Identity {
   }
 
   public async removeClaim(claimIdentifier: string): Promise<void> {
+    console.log('Identity', 'removeClaim');
+
     const signer = await Identity.getSigner();
 
     const addClaimTx = await this.contract.connect(signer).removeClaim(claimIdentifier);
@@ -46,18 +50,26 @@ export class Identity {
   }
 
   public getClaims(): Promise<string[]> {
+    console.log('Identity', 'getClaims');
+
     return this.contract.getClaimIdentifier();
   }
 
   public getClaimByIdentifier(claimIdentifier: string): Promise<Claim> {
+    console.log('Identity', 'getClaimByIdentifier');
+
     return this.contract.claims(claimIdentifier);
   }
 
   public getOwner(): Promise<string[]> {
+    console.log('Identity', 'getOwner');
+
     return this.contract.owner();
   }
 
   public async execute(functionSignature: string, targetAddress: string, amountInEtherString: string, gasLimit: number): Promise<void> {
+    console.log('Identity', 'execute');
+
     const signer = await Identity.getSigner();
 
     const functionSignatureHash = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(functionSignature)).substring(0, 10);

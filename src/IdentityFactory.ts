@@ -15,12 +15,12 @@ const opts = {
   debug: false
 };
 
-let sdk: SafeAppsSDK, safe: SafeInfo;
+const sdk = new SafeAppsSDK(opts);
+const safe = await sdk.safe.getInfo();
 
-await (async () => {
-  sdk = new SafeAppsSDK(opts);
-  safe = await sdk.safe.getInfo();
-})();
+console.log('IdentityFactory');
+console.log('sdk', sdk);
+console.log('safe', safe);
 
 export class IdentityFactory {
   private static provider = new ethers.providers.Web3Provider(new SafeAppProvider(safe, sdk));
@@ -32,6 +32,8 @@ export class IdentityFactory {
   }
 
   public static async init(address?: string): Promise<IdentityFactory> {
+    console.log('IdentityFactory', 'init');
+
     const signer = await this.getSigner();
 
     if (address) {
@@ -43,6 +45,8 @@ export class IdentityFactory {
   }
 
   public async getIdentitiesByTheGraph(): Promise<Identity[]> {
+    console.log('IdentityFactory', 'getIdentitiesByTheGraph');
+
     const signer = await IdentityFactory.getSigner();
     const signerAddress = await signer.getAddress();
 
@@ -64,6 +68,8 @@ export class IdentityFactory {
   }
 
   public async getIdentities(): Promise<Identity[]> {
+    console.log('IdentityFactory', 'getIdentities');
+
     let identityDeployedEvents = await this.contract.queryFilter('IdentityDeployed', 0);
 
     const signer = await IdentityFactory.getSigner();
@@ -76,6 +82,8 @@ export class IdentityFactory {
   }
 
   public async deployIdentity(): Promise<Identity> {
+    console.log('IdentityFactory', 'deployIdentity');
+
     const signer = await IdentityFactory.getSigner();
 
     const deployIdentityTx = await this.contract.connect(signer).deployIdentity();
