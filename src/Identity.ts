@@ -13,15 +13,16 @@ const opts = {
   debug: false
 };
 
-const sdk = new SafeAppsSDK(opts);
-const safe = await sdk.safe.getInfo();
-
-console.log('Identity');
-console.log('sdk', sdk);
-console.log('safe', safe);
-
 export class Identity {
-  private static provider = new ethers.providers.Web3Provider(new SafeAppProvider(safe, sdk));
+  private static provider = async () => {
+    const sdk = new SafeAppsSDK(opts);
+    const safe = await sdk.safe.getInfo();
+
+    console.log('sdk', sdk);
+    console.log('safe', safe);
+
+    return new ethers.providers.Web3Provider(new SafeAppProvider(safe, sdk));
+  };
 
   private contract: ethers.Contract;
 
@@ -84,7 +85,7 @@ export class Identity {
   }
 
   private static async getSigner(): Promise<ethers.providers.JsonRpcSigner> {
-    return this.provider.getSigner();
+    return (await this.provider()).getSigner();
   }
 
   private static async getSignerAddress(): Promise<string> {

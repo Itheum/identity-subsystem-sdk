@@ -1,3 +1,4 @@
+var _a;
 import { ethers } from "ethers";
 import { SafeAppProvider } from "@gnosis.pm/safe-apps-provider";
 import SafeAppsSDK from "@gnosis.pm/safe-apps-sdk";
@@ -5,11 +6,6 @@ const opts = {
     allowedDomains: [/gnosis-safe.io/],
     debug: false
 };
-const sdk = new SafeAppsSDK(opts);
-const safe = await sdk.safe.getInfo();
-console.log('Identity');
-console.log('sdk', sdk);
-console.log('safe', safe);
 export class Identity {
     constructor(contract) {
         this.contract = contract;
@@ -49,11 +45,18 @@ export class Identity {
         return this.contract.address;
     }
     static async getSigner() {
-        return this.provider.getSigner();
+        return (await this.provider()).getSigner();
     }
     static async getSignerAddress() {
         const signer = await this.getSigner();
         return signer.getAddress();
     }
 }
-Identity.provider = new ethers.providers.Web3Provider(new SafeAppProvider(safe, sdk));
+_a = Identity;
+Identity.provider = async () => {
+    const sdk = new SafeAppsSDK(opts);
+    const safe = await sdk.safe.getInfo();
+    console.log('sdk', sdk);
+    console.log('safe', safe);
+    return new ethers.providers.Web3Provider(new SafeAppProvider(safe, sdk));
+};
