@@ -54,9 +54,7 @@ export class IdentityFactory {
         return new Identity(new ethers.Contract(identityContractAddress, identityContractAbi, signer));
     }
     static async getSigner() {
-        const signer = (await this.provider()).getSigner();
-        console.log('address', signer.getAddress());
-        return signer;
+        return (await this.provider()).getSigner();
     }
     static async getSignerAddress() {
         const signer = await this.getSigner();

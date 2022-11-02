@@ -85,11 +85,7 @@ export class IdentityFactory {
   }
 
   private static async getSigner(): Promise<ethers.providers.JsonRpcSigner> {
-    const signer = (await this.provider()).getSigner()
-
-    console.log('address', signer.getAddress());
-
-    return signer;
+    return (await this.provider()).getSigner();
   }
 
   private static async getSignerAddress(): Promise<string> {

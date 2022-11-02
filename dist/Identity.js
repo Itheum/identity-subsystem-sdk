@@ -39,9 +39,7 @@ export class Identity {
         return this.contract.address;
     }
     static async getSigner() {
-        const signer = (await this.provider()).getSigner();
-        console.log('address', signer.getAddress());
-        return signer;
+        return (await this.provider()).getSigner();
     }
     static async getSignerAddress() {
         const signer = await this.getSigner();
