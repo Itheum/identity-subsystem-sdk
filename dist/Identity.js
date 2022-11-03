@@ -50,5 +50,8 @@ _a = Identity;
 Identity.provider = async () => {
     const sdk = new SafeAppsSDK(opts);
     const safe = await sdk.safe.getInfo();
+    if (!safe) {
+        alert('Please use this dApp only via your Gnosis Safe');
+    }
     return new ethers.providers.Web3Provider(new SafeAppProvider(safe, sdk));
 };
