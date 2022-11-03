@@ -17,7 +17,7 @@ export class Identity {
   private static provider = async () => {
     const sdk = new SafeAppsSDK(opts);
     const safe = await sdk.safe.getInfo();
-
+    console.log(safe);
     if (!safe) {
       alert('Please use this dApp only via your Gnosis Safe');
     }
