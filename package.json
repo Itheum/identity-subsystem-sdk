@@ -1,6 +1,6 @@
 {
   "name": "poc-itheum-identity-sdk",
-  "version": "1.0.21",
+  "version": "1.0.22",
   "description": "SDK for Itheums Identity and Claims Smart Contracts",
   "main": "dist/index.js",
   "scripts": {

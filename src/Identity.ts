@@ -1,7 +1,7 @@
 import { ethers } from "ethers";
 import { Claim } from "./Claim";
 import { SafeAppProvider } from "@gnosis.pm/safe-apps-provider";
-import SafeAppsSDK from "@gnosis.pm/safe-apps-sdk";
+import SafeAppsSDK, {SafeInfo} from "@gnosis.pm/safe-apps-sdk";
 
 interface CustomWindow extends Window {
   ethereum: any;
@@ -16,13 +16,18 @@ const opts = {
 export class Identity {
   private static provider = async () => {
     const sdk = new SafeAppsSDK(opts);
-    const safe = await sdk.safe.getInfo();
-    console.log(safe);
-    if (!safe) {
-      alert('Please use this dApp only via your Gnosis Safe');
-    }
+    const safe = await Promise.race([
+      sdk.safe.getInfo(),
+      new Promise((resolve, reject) => {
+        setTimeout(() => {
+          reject('Timed out');
+        }, 1000);
+      })
+    ]).catch(() => alert('Please use this dApp only via your Gnosis Safe'));
 
-    return new ethers.providers.Web3Provider(new SafeAppProvider(safe, sdk));
+    if (safe) {
+      return new ethers.providers.Web3Provider(new SafeAppProvider(safe as SafeInfo, sdk));
+    }
   };
 
   private contract: ethers.Contract;
@@ -34,6 +39,10 @@ export class Identity {
   public async addClaim(claim: Claim): Promise<void> {
     const signer = await Identity.getSigner();
 
+    if (!signer) {
+      return;
+    }
+
     const addClaimTx = await this.contract.connect(signer).addClaim(claim);
 
     await addClaimTx.wait();
@@ -41,6 +50,10 @@ export class Identity {
 
   public async removeClaim(claimIdentifier: string): Promise<void> {
     const signer = await Identity.getSigner();
+
+    if (!signer) {
+      return;
+    }
 
     const addClaimTx = await this.contract.connect(signer).removeClaim(claimIdentifier);
 
@@ -62,6 +75,10 @@ export class Identity {
   public async execute(functionSignature: string, targetAddress: string, amountInEtherString: string, gasLimit: number): Promise<void> {
     const signer = await Identity.getSigner();
 
+    if (!signer) {
+      return;
+    }
+
     const functionSignatureHash = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(functionSignature)).substring(0, 10);
 
     const executeTx = await this.contract.connect(signer).execute(0, targetAddress, ethers.utils.parseEther(amountInEtherString), functionSignatureHash, { gasLimit });
@@ -73,12 +90,12 @@ export class Identity {
     return this.contract.address;
   }
 
-  private static async getSigner(): Promise<ethers.providers.JsonRpcSigner> {
-    return (await this.provider()).getSigner();
+  private static async getSigner(): Promise<ethers.providers.JsonRpcSigner | undefined> {
+    return (await this.provider())?.getSigner();
   }
 
-  private static async getSignerAddress(): Promise<string> {
+  private static async getSignerAddress(): Promise<string | undefined> {
     const signer = await this.getSigner();
-    return signer.getAddress();
+    return signer?.getAddress();
   }
 }

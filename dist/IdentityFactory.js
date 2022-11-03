@@ -15,6 +15,9 @@ export class IdentityFactory {
     }
     static async init(address) {
         const signer = await this.getSigner();
+        if (!signer) {
+            return;
+        }
         if (address) {
             return new IdentityFactory(new ethers.Contract(address, IdentityFactoryContractAbi, signer));
         }
@@ -25,6 +28,9 @@ export class IdentityFactory {
     }
     async getIdentitiesByTheGraph() {
         const signer = await IdentityFactory.getSigner();
+        if (!signer) {
+            return;
+        }
         const signerAddress = await signer.getAddress();
         const getIdentityDeployedEntitiesForAddressQuery = {
             query: `{
@@ -41,6 +47,9 @@ export class IdentityFactory {
     async getIdentities() {
         let identityDeployedEvents = await this.contract.queryFilter('IdentityDeployed', 0);
         const signer = await IdentityFactory.getSigner();
+        if (!signer) {
+            return;
+        }
         const signerAddress = await signer.getAddress();
         const identityDeployedEventsForSignerAddress = identityDeployedEvents.filter(event => event.args && event.args[1] === signerAddress);
         let identityAddresses = identityDeployedEventsForSignerAddress.length > 0 ? identityDeployedEventsForSignerAddress.map(event => event.args[0]) : [];
@@ -48,26 +57,35 @@ export class IdentityFactory {
     }
     async deployIdentity() {
         const signer = await IdentityFactory.getSigner();
+        if (!signer) {
+            return;
+        }
         const deployIdentityTx = await this.contract.connect(signer).deployIdentity();
         const deployIdentityTxResult = await deployIdentityTx.wait();
         const identityContractAddress = deployIdentityTxResult.events[0].address;
         return new Identity(new ethers.Contract(identityContractAddress, identityContractAbi, signer));
     }
     static async getSigner() {
-        return (await this.provider()).getSigner();
+        var _b;
+        return (_b = (await this.provider())) === null || _b === void 0 ? void 0 : _b.getSigner();
     }
     static async getSignerAddress() {
         const signer = await this.getSigner();
-        return signer.getAddress();
+        return signer === null || signer === void 0 ? void 0 : signer.getAddress();
     }
 }
 _a = IdentityFactory;
 IdentityFactory.provider = async () => {
     const sdk = new SafeAppsSDK(opts);
-    const safe = await sdk.safe.getInfo();
-    console.log(safe);
-    if (!safe) {
-        alert('Please use this dApp only via your Gnosis Safe');
+    const safe = await Promise.race([
+        sdk.safe.getInfo(),
+        new Promise((resolve, reject) => {
+            setTimeout(() => {
+                reject('Timed out');
+            }, 1000);
+        })
+    ]).catch(() => alert('Please use this dApp only via your Gnosis Safe'));
+    if (safe) {
+        return new ethers.providers.Web3Provider(new SafeAppProvider(safe, sdk));
     }
-    return new ethers.providers.Web3Provider(new SafeAppProvider(safe, sdk));
 };

@@ -3,7 +3,7 @@ import { Identity } from "./Identity";
 import { ethers } from 'ethers';
 import { default as axios } from 'axios';
 import { SafeAppProvider } from '@gnosis.pm/safe-apps-provider';
-import SafeAppsSDK from "@gnosis.pm/safe-apps-sdk";
+import SafeAppsSDK, {SafeInfo} from "@gnosis.pm/safe-apps-sdk";
 
 interface CustomWindow extends Window {
   ethereum: any;
@@ -18,13 +18,18 @@ const opts = {
 export class IdentityFactory {
   private static provider = async () => {
     const sdk = new SafeAppsSDK(opts);
-    const safe = await sdk.safe.getInfo();
-    console.log(safe);
-    if (!safe) {
-      alert('Please use this dApp only via your Gnosis Safe');
-    }
+    const safe = await Promise.race([
+      sdk.safe.getInfo(),
+      new Promise((resolve, reject) => {
+        setTimeout(() => {
+          reject('Timed out');
+        }, 1000);
+      })
+    ]).catch(() => alert('Please use this dApp only via your Gnosis Safe'));
 
-    return new ethers.providers.Web3Provider(new SafeAppProvider(safe, sdk));
+    if (safe) {
+      return new ethers.providers.Web3Provider(new SafeAppProvider(safe as SafeInfo, sdk));
+    }
   };
 
   private contract: ethers.Contract;
@@ -33,8 +38,12 @@ export class IdentityFactory {
     this.contract = contract;
   }
 
-  public static async init(address?: string): Promise<IdentityFactory> {
+  public static async init(address?: string): Promise<IdentityFactory | undefined> {
     const signer = await this.getSigner();
+
+    if (!signer) {
+      return;
+    }
 
     if (address) {
       return new IdentityFactory(new ethers.Contract(address, IdentityFactoryContractAbi, signer))
@@ -44,8 +53,13 @@ export class IdentityFactory {
     }
   }
 
-  public async getIdentitiesByTheGraph(): Promise<Identity[]> {
+  public async getIdentitiesByTheGraph(): Promise<Identity[] | undefined> {
     const signer = await IdentityFactory.getSigner();
+
+    if (!signer) {
+      return;
+    }
+
     const signerAddress = await signer.getAddress();
 
     const getIdentityDeployedEntitiesForAddressQuery = {
@@ -65,10 +79,15 @@ export class IdentityFactory {
     return identityAddresses.map(address => new Identity(new ethers.Contract(address, identityContractAbi, signer)));
   }
 
-  public async getIdentities(): Promise<Identity[]> {
+  public async getIdentities(): Promise<Identity[] | undefined> {
     let identityDeployedEvents = await this.contract.queryFilter('IdentityDeployed', 0);
 
     const signer = await IdentityFactory.getSigner();
+
+    if (!signer) {
+      return;
+    }
+
     const signerAddress = await signer.getAddress();
 
     const identityDeployedEventsForSignerAddress = identityDeployedEvents.filter(event => event.args && event.args[1] === signerAddress);
@@ -77,8 +96,12 @@ export class IdentityFactory {
     return identityAddresses.map(address => new Identity(new ethers.Contract(address, identityContractAbi, signer)));
   }
 
-  public async deployIdentity(): Promise<Identity> {
+  public async deployIdentity(): Promise<Identity | undefined> {
     const signer = await IdentityFactory.getSigner();
+
+    if(!signer) {
+      return;
+    }
 
     const deployIdentityTx = await this.contract.connect(signer).deployIdentity();
     const deployIdentityTxResult = await deployIdentityTx.wait();
@@ -88,12 +111,12 @@ export class IdentityFactory {
     return new Identity(new ethers.Contract(identityContractAddress, identityContractAbi, signer));
   }
 
-  private static async getSigner(): Promise<ethers.providers.JsonRpcSigner> {
-    return (await this.provider()).getSigner();
+  private static async getSigner(): Promise<ethers.providers.JsonRpcSigner | undefined> {
+    return (await this.provider())?.getSigner();
   }
 
-  private static async getSignerAddress(): Promise<string> {
+  private static async getSignerAddress(): Promise<string | undefined> {
     const signer = await this.getSigner();
-    return signer.getAddress();
+    return signer?.getAddress();
   }
 }
