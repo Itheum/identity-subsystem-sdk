@@ -4,7 +4,7 @@ This SDK is currently focused on interacting with the EVM contracts here: https:
 ## Dev
 - `npm install`
 - work on typescript code in the `/src` folder
-- If you deploy new `identityFactory` (https://github.com/Itheum/datametaverse-evm/blob/main/contracts/identity/IdentityFactory.sol) or `identity` (https://github.com/Itheum/datametaverse-evm/blob/main/contracts/identity/Identity.sol) contracts then you need to update `constants.ts` with new ABI and code. This also applies if you deploy new a identityFactory SubGraph (i.e. https://github.com/Itheum/poc-identity-factory-subgraph)
+- If you deploy new `identityFactory` (https://github.com/Itheum/datametaverse-evm/blob/main/contracts/identity/IdentityFactory.sol) or `identity` (https://github.com/Itheum/datametaverse-evm/blob/main/contracts/identity/Identity.sol) contracts then you need to update `constants.ts` with new ABIs and byte code. This also applies if you deploy new a identityFactory SubGraph (i.e. https://github.com/Itheum/poc-identity-factory-subgraph). Here you have to update the respective URL.
 
 ## UI Integration Dev
 - Download and run this POC app: (https://github.com/Itheum/poc-identity-subsystem-dapp-ui-tests)
